@@ -2,7 +2,6 @@ import math
 import random
 
 
-tiempo = 0
 tiempo_final = 7 * 24 * 60  # 7 dias en minutos
 hora_inicio = 6
 hora_fin = 16
@@ -24,8 +23,6 @@ ta_facturas = 20 #min
 ta_panes = 25 #min
 factor_horno_1 = 1 # si es nuevo es 0,9 si es viejo es 1
 factor_horno_2 = 1 # si es nuevo es 0,9 si es viejo es 1
-vector_tiempo_comprometido_maquina_1 = [0 for _ in range(cantidad_bandejas_maquina_1)]
-vector_tiempo_comprometido_maquina_2 = [0 for _ in range(cantidad_bandejas_maquina_2)]
 def obtener_dia_de_semana(tiempo):
     """
     Tomamos el numero entero para saber que dia de la semana es (de 0 a 6)
@@ -103,7 +100,7 @@ def intervalo_arribo_sabado():
             return dominio
 
 
-def indice_bandeja_con_menor_tc_horno_1():
+def indice_bandeja_con_menor_tc_horno_1(vector_tiempo_comprometido_maquina_1):
     indice_min = 0
     valor_min = vector_tiempo_comprometido_maquina_1[0]
     for i in range(1, len(vector_tiempo_comprometido_maquina_1)):
@@ -113,7 +110,7 @@ def indice_bandeja_con_menor_tc_horno_1():
     return indice_min
 
 
-def indice_bandeja_con_menor_tc_horno_2():
+def indice_bandeja_con_menor_tc_horno_2(vector_tiempo_comprometido_maquina_2):
     indice_min = 0
     valor_min = vector_tiempo_comprometido_maquina_2[0]
     for i in range(1, len(vector_tiempo_comprometido_maquina_2)):
@@ -150,15 +147,15 @@ def el_pedido_termina_antes_del_cierre(tiempo, tiempo_atencion):
 
 
 def main():
-    global tiempo
-    global vector_tiempo_comprometido_maquina_1
-    global vector_tiempo_comprometido_maquina_2
+    tiempo = 0
+    vector_tiempo_comprometido_maquina_1 = [0 for _ in range(cantidad_bandejas_maquina_1)]
+    vector_tiempo_comprometido_maquina_2 = [0 for _ in range(cantidad_bandejas_maquina_2)]
     tiempo_proxima_llegada = (24+hora_inicio)*60
     cantidad_rechazados = 0
     bandejas_horneadas = 0
     sumatoria_tiempo_ocioso = 0
     sumatoria_tiempo_espera = 0
-    tiempo_atencion = 0
+    tiempo_atencion = None
     while(True):
         es_horno_uno = False
         tiempo = tiempo_proxima_llegada
@@ -169,8 +166,8 @@ def main():
             continue
         intervalo_arribos = intervalo_arribo_sabado() if es_sabado(dia_semana) else intervalo_arribo_semana()
         tiempo_proxima_llegada = intervalo_arribos + tiempo
-        indice_horno_1 = indice_bandeja_con_menor_tc_horno_1()
-        indice_horno_2 = indice_bandeja_con_menor_tc_horno_2()
+        indice_horno_1 = indice_bandeja_con_menor_tc_horno_1(vector_tiempo_comprometido_maquina_1)
+        indice_horno_2 = indice_bandeja_con_menor_tc_horno_2(vector_tiempo_comprometido_maquina_2)
         if vector_tiempo_comprometido_maquina_2[indice_horno_2] < vector_tiempo_comprometido_maquina_1[indice_horno_1]:
             """
             usamos horno 2
