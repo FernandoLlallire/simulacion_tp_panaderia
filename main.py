@@ -2,7 +2,7 @@ import math
 import random
 
 
-tiempo_final = 365 * 24 * 60  # 90 dias de simulacion
+tiempo_final = 365 * 24 * 60 #365 dias de simulacion
 hora_inicio = 6
 hora_fin = 16
 tiempo_limite_rechazo = 0
