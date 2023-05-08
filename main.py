@@ -2,7 +2,7 @@ import math
 import random
 
 
-tiempo_final = 90 * 24 * 60  # 90 dias de simulacion
+tiempo_final = 365 * 24 * 60  # 90 dias de simulacion
 hora_inicio = 6
 hora_fin = 16
 tiempo_limite_rechazo = 0
@@ -21,7 +21,7 @@ ta_pre_pizza = 15 #min
 ta_facturas = 20 #min
 ta_panes = 25 #min
 factor_horno_1 = 6
-factor_horno_2 = 6
+factor_horno_2 = 3
 def obtener_dia_de_semana(tiempo):
     """
     Tomamos el numero entero para saber que dia de la semana es (de 0 a 6)
@@ -235,13 +235,13 @@ def main():
             promedio_tiempo_ocioso_horno_2 = sumatoria_tiempo_ocioso_horno_2 / tiempo
             promedio_tiempo_espera = sumatoria_tiempo_espera / bandejas_horneadas
             porcentaje_arrepentidos = (cantidad_rechazados / bandejas_horneadas) * 100
-            print(f'promedio_tiempo_ocioso_horno_1 = {promedio_tiempo_ocioso_horno_1}')
-            print(f'promedio_tiempo_ocioso_horno_2 = {promedio_tiempo_ocioso_horno_2}')
-            print(f'promedio_tiempo_espera = {promedio_tiempo_espera}')
-            print(f'porcentaje_arrepentidos = {porcentaje_arrepentidos}')
+            print(f'promedio tiempo ocioso horno 1 = {promedio_tiempo_ocioso_horno_1}')
+            print(f'promedio tiempo ocioso horno 2 = {promedio_tiempo_ocioso_horno_2}')
+            print(f'promedio tiempo espera = {promedio_tiempo_espera}')
+            print(f'porcentaje arrepentidos = {porcentaje_arrepentidos}')
             return
 
 if __name__ == '__main__':
-    print("iniciando_script")
+    print("simulacion usando un horno viejo como horno 1 y un horno nuevo como horno 2")
     main()
 
