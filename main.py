@@ -2,7 +2,7 @@ import math
 import random
 
 
-tiempo_final = 90 * 24 * 60  # 7 dias en minutos
+tiempo_final = 90 * 24 * 60  # 90 dias de simulacion
 hora_inicio = 6
 hora_fin = 16
 tiempo_limite_rechazo = 0
@@ -20,8 +20,8 @@ ta_galletita = 10 #min
 ta_pre_pizza = 15 #min
 ta_facturas = 20 #min
 ta_panes = 25 #min
-factor_horno_1 = 6 # si es nuevo es 0,9 si es viejo es 1
-factor_horno_2 = 6 # si es nuevo es 0,9 si es viejo es 1
+factor_horno_1 = 6
+factor_horno_2 = 6
 def obtener_dia_de_semana(tiempo):
     """
     Tomamos el numero entero para saber que dia de la semana es (de 0 a 6)
@@ -93,7 +93,7 @@ def fda_dia_sabado(valor_x):
 def intervalo_arribo_sabado():
     while(True):
         random_number = random.uniform(0, 1)
-        dominio_inferior = 15#-(sigma_sabado/kappa_sabado)+mu_sabado
+        dominio_inferior = 15
         dominio_superior = 25
         dominio = random.uniform(dominio_inferior, dominio_superior)
         imagen = cota_superior_sabado * random_number
@@ -154,7 +154,8 @@ def main():
     tiempo_proxima_llegada = hora_inicio*60
     cantidad_rechazados = 0
     bandejas_horneadas = 0
-    sumatoria_tiempo_ocioso = 0
+    sumatoria_tiempo_ocioso_horno_1 = 0
+    sumatoria_tiempo_ocioso_horno_2 = 0
     sumatoria_tiempo_espera = 0
     tiempo_atencion = None
     while(True):
@@ -205,7 +206,7 @@ def main():
                 Trabajamos con el horno 1 por tener el menor tiempo comprometido
                 """
                 if tiempo > vector_tiempo_comprometido_maquina_1[indice_horno_1]:
-                    sumatoria_tiempo_ocioso = sumatoria_tiempo_ocioso + (tiempo - vector_tiempo_comprometido_maquina_1[indice_horno_1])
+                    sumatoria_tiempo_ocioso_horno_1 = sumatoria_tiempo_ocioso_horno_1 + (tiempo - vector_tiempo_comprometido_maquina_1[indice_horno_1])
                     vector_tiempo_comprometido_maquina_1[indice_horno_1] = tiempo + tiempo_atencion
                 else:
                     sumatoria_tiempo_espera = sumatoria_tiempo_espera + vector_tiempo_comprometido_maquina_1[indice_horno_1] - tiempo
@@ -215,7 +216,7 @@ def main():
                 Trabajamos con el horno 2 que tiene menor tiempo comprometido
                 """
                 if tiempo > vector_tiempo_comprometido_maquina_2[indice_horno_2]:
-                    sumatoria_tiempo_ocioso = sumatoria_tiempo_ocioso + (tiempo - vector_tiempo_comprometido_maquina_2[indice_horno_2])
+                    sumatoria_tiempo_ocioso_horno_2 = sumatoria_tiempo_ocioso_horno_2 + (tiempo - vector_tiempo_comprometido_maquina_2[indice_horno_2])
                     vector_tiempo_comprometido_maquina_2[indice_horno_2] = tiempo + tiempo_atencion
                 else:
                     sumatoria_tiempo_espera = sumatoria_tiempo_espera + vector_tiempo_comprometido_maquina_2[indice_horno_2] - tiempo
@@ -230,12 +231,14 @@ def main():
             """
             Finalizo la simulacion
             """
-            promedio_tiempo_ocioso = sumatoria_tiempo_ocioso / tiempo
+            promedio_tiempo_ocioso_horno_1 = sumatoria_tiempo_ocioso_horno_1 / tiempo
+            promedio_tiempo_ocioso_horno_2 = sumatoria_tiempo_ocioso_horno_2 / tiempo
             promedio_tiempo_espera = sumatoria_tiempo_espera / bandejas_horneadas
-            promedio_arrepentidos = (cantidad_rechazados / bandejas_horneadas) * 100
-            print(f'promedio_tiempo_ocioso = {promedio_tiempo_ocioso}')
+            porcentaje_arrepentidos = (cantidad_rechazados / bandejas_horneadas) * 100
+            print(f'promedio_tiempo_ocioso_horno_1 = {promedio_tiempo_ocioso_horno_1}')
+            print(f'promedio_tiempo_ocioso_horno_2 = {promedio_tiempo_ocioso_horno_2}')
             print(f'promedio_tiempo_espera = {promedio_tiempo_espera}')
-            print(f'promedio_arrepentidos = {promedio_arrepentidos}')
+            print(f'porcentaje_arrepentidos = {porcentaje_arrepentidos}')
             return
 
 if __name__ == '__main__':
