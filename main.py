@@ -2,7 +2,7 @@ import math
 import random
 
 
-tiempo_final = 7 * 24 * 60  # 7 dias en minutos
+tiempo_final = 90 * 24 * 60  # 7 dias en minutos
 hora_inicio = 6
 hora_fin = 16
 tiempo_limite_rechazo = 0
@@ -14,15 +14,14 @@ cota_superior_sabado = 0.21
 kappa_semana = -0.93432
 sigma_semana = 10.726
 mu_semana = 4.7681
-kappa_sabado = -0.18729
-sigma_sabado = 2.5903
-mu_sabado = 18.997
+alpha_sabado = 8.731
+beta_sabado = 21.169
 ta_galletita = 10 #min
 ta_pre_pizza = 15 #min
 ta_facturas = 20 #min
 ta_panes = 25 #min
-factor_horno_1 = 1 # si es nuevo es 0,9 si es viejo es 1
-factor_horno_2 = 1 # si es nuevo es 0,9 si es viejo es 1
+factor_horno_1 = 6 # si es nuevo es 0,9 si es viejo es 1
+factor_horno_2 = 6 # si es nuevo es 0,9 si es viejo es 1
 def obtener_dia_de_semana(tiempo):
     """
     Tomamos el numero entero para saber que dia de la semana es (de 0 a 6)
@@ -38,6 +37,10 @@ def es_antes_del_horario_de_apertura(tiempo):
     :return:
     """
     return (tiempo/60)%24 < hora_inicio
+
+
+def es_despues_horario(tiempo):
+    return (tiempo/60)%24 > hora_fin
 
 
 def esta_cerrada_la_panaderia(dia_semana):
@@ -57,12 +60,12 @@ def es_sabado(dia_semana):
     """
     return dia_semana % 7 == 5
 
-def fda_dia_semana(dominio):
+def fda_dia_semana(valor_x):
     """
     Cuando es dia de semana se tiene una fdp diferente
     :return:
     """
-    partial_fdp = (1 + kappa_semana * ((dominio - mu_semana) / sigma_semana))
+    partial_fdp = (1 + kappa_semana * ((valor_x - mu_semana) / sigma_semana))
     return (1/sigma_semana) * (partial_fdp ** (-1 - (1 / kappa_semana)))
 
 
@@ -71,32 +74,30 @@ def intervalo_arribo_semana():
         random_number = random.uniform(0, 1)
         dominio_inferior = mu_semana
         dominio_superior = mu_semana - (sigma_semana / kappa_semana)
-        dominio = random.uniform(dominio_inferior, dominio_superior)
+        valor_x = random.uniform(dominio_inferior, dominio_superior)
         imagen = cota_superior_semana * random_number
-        if imagen < fda_dia_semana(dominio):
-            return dominio
+        if imagen < fda_dia_semana(valor_x):
+            return int(valor_x)
 
-def fda_dia_sabado(dominio):
+def fda_dia_sabado(valor_x):
     """
     Cuando es dia de semana se tiene una fdp diferente
     :return:
     """
-    z = (dominio - mu_sabado)/ sigma_sabado
-    inv_sigma = 1/sigma_sabado
-    termino_aux_1 = -(1+kappa_semana*z)**(-1/kappa_sabado)
-    termino_exp = math.exp(termino_aux_1)
-    termino_adicional = (1+kappa_sabado*z)**(-1-(1/kappa_sabado))
-    return inv_sigma * termino_exp * termino_adicional
+    termino_1 = alpha_sabado / beta_sabado
+    termino_2 = (valor_x/beta_sabado)**(alpha_sabado-1)
+    termino_3 = math.exp(-(alpha_sabado/beta_sabado)**alpha_sabado)
+    return termino_1 * termino_2 * termino_3
 
 
 def intervalo_arribo_sabado():
     while(True):
         random_number = random.uniform(0, 1)
-        dominio_inferior = 0
-        dominio_superior = -(sigma_sabado/kappa_sabado+mu_sabado)
+        dominio_inferior = 15#-(sigma_sabado/kappa_sabado)+mu_sabado
+        dominio_superior = 25
         dominio = random.uniform(dominio_inferior, dominio_superior)
         imagen = cota_superior_sabado * random_number
-        if imagen < fda_dia_semana(dominio):
+        if imagen < fda_dia_sabado(dominio):
             return dominio
 
 
@@ -150,7 +151,7 @@ def main():
     tiempo = 0
     vector_tiempo_comprometido_maquina_1 = [0 for _ in range(cantidad_bandejas_maquina_1)]
     vector_tiempo_comprometido_maquina_2 = [0 for _ in range(cantidad_bandejas_maquina_2)]
-    tiempo_proxima_llegada = (24+hora_inicio)*60
+    tiempo_proxima_llegada = hora_inicio*60
     cantidad_rechazados = 0
     bandejas_horneadas = 0
     sumatoria_tiempo_ocioso = 0
@@ -160,10 +161,18 @@ def main():
         es_horno_uno = False
         tiempo = tiempo_proxima_llegada
         dia_semana = obtener_dia_de_semana(tiempo)
-        if not es_antes_del_horario_de_apertura(tiempo):
-            tiempo_proxima_llegada = dia_semana * 24 * 60 + hora_inicio
         if esta_cerrada_la_panaderia(dia_semana):
+            if dia_semana%7==0:
+                dia_semana = dia_semana + 1
+            if dia_semana % 7 == 6:
+                dia_semana = dia_semana + 2
+            tiempo_proxima_llegada = (dia_semana) * 24 * 60 + (hora_inicio*60)
             continue
+
+        if es_antes_del_horario_de_apertura(tiempo):
+            tiempo_proxima_llegada = dia_semana * 24 * 60 + (hora_inicio*60)
+        if es_despues_horario(tiempo):
+            tiempo_proxima_llegada = (dia_semana + 1) * 60 * 24 +hora_inicio*60
         intervalo_arribos = intervalo_arribo_sabado() if es_sabado(dia_semana) else intervalo_arribo_semana()
         tiempo_proxima_llegada = intervalo_arribos + tiempo
         indice_horno_1 = indice_bandeja_con_menor_tc_horno_1(vector_tiempo_comprometido_maquina_1)
