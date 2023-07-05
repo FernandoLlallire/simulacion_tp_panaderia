@@ -235,10 +235,10 @@ def main():
             promedio_tiempo_ocioso_horno_2 = sumatoria_tiempo_ocioso_horno_2 / tiempo
             promedio_tiempo_espera = sumatoria_tiempo_espera / bandejas_horneadas
             porcentaje_arrepentidos = (cantidad_rechazados / bandejas_horneadas) * 100
-            print(f'promedio tiempo ocioso horno 1 = {promedio_tiempo_ocioso_horno_1}')
-            print(f'promedio tiempo ocioso horno 2 = {promedio_tiempo_ocioso_horno_2}')
-            print(f'promedio tiempo espera = {promedio_tiempo_espera}')
-            print(f'porcentaje arrepentidos = {porcentaje_arrepentidos}')
+            print(f'promedio tiempo ocioso horno 1 = {promedio_tiempo_ocioso_horno_1:.2f} min')
+            print(f'promedio tiempo ocioso horno 2 = {promedio_tiempo_ocioso_horno_2:.2f} min')
+            print(f'promedio tiempo espera = {promedio_tiempo_espera:.2f} min')
+            print(f'porcentaje arrepentidos = {porcentaje_arrepentidos:.2f} %')
             return
 
 if __name__ == '__main__':
